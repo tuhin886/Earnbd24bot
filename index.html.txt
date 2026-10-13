@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Wallet</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Monetag SDK (   <script src='//libtl.com/sdk.js' data-zone='12016657' data-sdk='show_12016657'></script> -->
+    <script src="https://alwingulla.com/88/tag.min.js" data-zone="XXX" async data-cfasync="false"></script>
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0b101d;
+            color: #ffffff;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        /* Profile Header */
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            background-color: #2b7fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .user-info .username {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .user-info .user-id {
+            font-size: 12px;
+            color: #8a99ad;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3858a2 100%);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .balance-title {
+            font-size: 13px;
+            color: #b0c4de;
+            margin-bottom: 6px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .balance-amount span {
+            font-size: 16px;
+            font-weight: normal;
+            color: #8a99ad;
+        }
+
+        .network-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #d1e0ff;
+        }
+
+        /* Streak Card */
+        .streak-card {
+            background-color: #151c2e;
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .streak-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .streak-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .streak-text h4 {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .streak-text p {
+            font-size: 12px;
+            color: #8a99ad;
+        }
+
+        .claim-btn {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Grid Cards */
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 14px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .grid-card {
+            background-color: #151c2e;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 110px;
+            cursor: pointer;
+        }
+
+        .grid-icon {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        .grid-card h4 {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .grid-card p {
+            font-size: 11px;
+            color: #8a99ad;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #0d1424;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8a99ad;
+            font-size: 11px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item.active {
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Profile Header -->
+    <div class="header">
+        <div class="avatar" id="user-avatar">Q</div>
+        <div class="user-info">
+            <div class="username" id="username">quickuser</div>
+            <div class="user-id" id="user-id">ID 000000</div>
+        </div>
+    </div>
+
+    <!-- Balance Card -->
+    <div class="balance-card">
+        <div class="balance-title">Total balance</div>
+        <div class="balance-amount">$<span id="balance-val">0.00</span> <span>USDT</span></div>
+        <div class="network-tag">USDT · BEP20 / TRC20</div>
+    </div>
+
+    <!-- Streak Card -->
+    <div class="streak-card">
+        <div class="streak-info">
+            <div class="streak-icon">🔥</div>
+            <div class="streak-text">
+                <h4 id="streak-days">0-day streak</h4>
+                <p>Claim today's reward</p>
+            </div>
+        </div>
+        <button class="claim-btn" onclick="claimReward()">Claim</button>
+    </div>
+
+    <!-- Jump back in Section -->
+    <div class="section-title">Jump back in</div>
+    <div class="grid-container">
+        <!-- Tasks -->
+        <div class="grid-card" onclick="alert('টাস্ক অপশন খুলছে...')">
+            <div class="grid-icon"><i class="fa-regular fa-square-check"></i></div>
+            <div>
+                <h4>0 tasks open</h4>
+                <p>Earn USDT for each one</p>
+            </div>
+        </div>
+
+        <!-- Watch Ads -->
+        <div class="grid-card" onclick="watchAd()">
+            <div class="grid-icon"><i class="fa-solid fa-play"></i></div>
+            <div>
+                <h4>Watch & earn</h4>
+                <p>Watch Monetag Ads</p>
+            </div>
+        </div>
+
+        <!-- Referrals -->
+        <div class="grid-card" onclick="alert('আপনার রেফারেল লিংক কপি হয়েছে!')">
+            <div class="grid-icon"><i class="fa-solid fa-user-group"></i></div>
+            <div>
+                <h4>0 referrals</h4>
+                <p>Invite friends</p>
+            </div>
+        </div>
+
+        <!-- Withdraw -->
+        <div class="grid-card" onclick="withdraw()">
+            <div class="grid-icon"><i class="fa-regular fa-credit-card"></i></div>
+            <div>
+                <h4>Withdraw</h4>
+                <p id="withdraw-status">Not eligible yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item">
+            <i class="fa-regular fa-square-check"></i>
+            <span>Tasks</span>
+        </div>
+        <div class="nav-item" onclick="watchAd()">
+            <i class="fa-solid fa-play"></i>
+            <span>Watch Ads</span>
+        </div>
+        <div class="nav-item">
+            <i class="fa-solid fa-user-group"></i>
+            <span>Invite</span>
+        </div>
+        <div class="nav-item" onclick="withdraw()">
+            <i class="fa-regular fa-credit-card"></i>
+            <span>Withdraw</span>
+        </div>
+    </div>
+
+    <script>
+        // Telegram WebApp Initialization
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let balance = parseFloat(localStorage.getItem('usdt_balance')) || 0.00;
+        let streak = parseInt(localStorage.getItem('streak_days')) || 0;
+
+        // Populate Telegram User Info
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            document.getElementById('username').innerText = user.username || user.first_name;
+            document.getElementById('user-id').innerText = `ID ${user.id}`;
+            document.getElementById('user-avatar').innerText = (user.first_name || 'Q').charAt(0).toUpperCase();
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('balance-val').innerText = balance.toFixed(2);
+            document.getElementById('streak-days').innerText = `${streak}-day streak`;
+            
+            if (balance >= 5.00) {
+                document.getElementById('withdraw-status').innerText = "Eligible";
+            }
+        }
+        updateUI();
+
+        // Claim Daily Reward Function
+        function claimReward() {
+            streak += 1;
+            balance += 0.10; // প্রতিদিন $0.10 USDT যোগ হবে
+            localStorage.setItem('streak_days', streak);
+            localStorage.setItem('usdt_balance', balance);
+            updateUI();
+            tg.showAlert("Daily reward claimed! +$0.10 USDT added.");
+        }
+
+        // Monetag Watch Ad Function
+        function watchAd() {
+            // Monetag Zone Integration
+            if (typeof show_ 12016657== 'function') {
+                show_XXX({ type: 'end', requestVar: 'reward_button' })
+                    .then((result) => {
+                        if (result?.reward_event_type === 'valued') {
+                            balance += 0.05; // এড দেখলে $0.05 USDT রিওয়ার্ড
+                            localStorage.setItem('usdt_balance', balance);
+                            updateUI();
+                            tg.showAlert("Success! You earned $0.05 USDT.");
+                        } else {
+                            tg.showAlert("Ad was not completed.");
+                        }
+                    })
+                    .catch(() => {
+                        tg.showAlert("No ads available right now. Try again later.");
+                    });
+            } else {
+                tg.showAlert("Monetag SDK is loading or AdBlocker is active.");
+            }
+        }
+
+        // Withdraw Function
+        function withdraw() {
+            if (balance < 5.00) {
+                tg.showAlert("Minimum withdraw requirement is $5.00 USDT.");
+            } else {
+                tg.showAlert("Enter your TRC20/BEP20 Wallet Address to cash out!");
+            }
+        }
+    </script>
+</body>
+</html>
